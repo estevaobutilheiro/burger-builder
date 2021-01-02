@@ -41,14 +41,14 @@ class BurgerBuilder extends Component{
     }
 
     updatePurchaseState(ingredients){
-        const sum = Object.keys(ingredients)
-            .map(igKey => {
-                return ingredients[igKey]
-            })
-            .reduce((sum, el) => {
-                return sum + el;
-            }, 0);
-        this.setState({purchasable: sum > 0});
+        const sum = Object.keys( ingredients )
+        .map( igKey => {
+            return ingredients[igKey];
+        } )
+        .reduce( ( sum, el ) => {
+            return sum + el;
+        }, 0 );
+        this.setState( { purchasable: sum > 0 } );
     }
 
     addIngredientHandler = (type) => {
@@ -83,7 +83,9 @@ class BurgerBuilder extends Component{
     }
 
     purchaseHandler = () => {
+        console.log(this.props);
         this.setState({purchasing: true});
+
     }
 
     closeModalHandler = () => {
@@ -92,28 +94,17 @@ class BurgerBuilder extends Component{
 
     purchaseContinueHandler = () => {
         // alert('You Continue!');
-        this.setState({loading: true})
-        const order = {
-            ingredients: this.state.ingredients,
-            price: this.state.totalPrice, //this price should be stored in the server to make sure the user isn't manipulating the data
-            customer: {
-                name: 'Max',
-                address: {
-                    street: 'Teststreet 1',
-                    zipCode: '41351',
-                    country: 'Germany'
-                },
-                email: 'test@test.com'
-            },
-            deliveryMethod: 'fastest'
+        
+        const queryParams = [];
+        for(let i in this.state.ingredients) {
+            queryParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(this.state.ingredients[i]));
         }
-        axios.post('/orders.json', order)
-            .then(response => {
-                this.setState({loading: false, purchasing: false});
-            })
-            .catch(error => {
-                this.setState({loading: false, purchasing: false});
-            });
+        queryParams.push('price='+this.state.totalPrice);
+        const queryString = queryParams.join('&');
+        this.props.history.push({
+            pathname: '/checkout',
+            search: '?' + queryString
+        });
     }
 
     render(){
